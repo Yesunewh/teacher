@@ -176,6 +176,12 @@ class TeacherController extends Controller
 
         return view('panel.teacher.manage.subject', compact('subject', 'grade', 'section'));
     }
+    public function subjects()
+    {
+      $subject =  SubjectforGrade::with('subject','grade')->get();
+
+        return view('panel.teacher.manage.subjectlist', compact('subject'));
+    }
 
     public function classsubjectsave(Request $request)
     {
