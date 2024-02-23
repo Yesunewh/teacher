@@ -56,6 +56,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
             Route::get('/manage/student', [TeacherController::class, 'managestudent'])->name('managestudent')->middleware('hasTokens');
             Route::post('/manage/student', [TeacherController::class, 'studentinfosave'])->name('managestudent')->middleware('hasTokens');
             Route::get('/manage/subject', [TeacherController::class, 'classsubject'])->name('classsubject')->middleware('hasTokens');
+            Route::get('/manage/student/list', [TeacherController::class, 'students'])->name('students')->middleware('hasTokens');
             
             Route::post('/generate/unitplanner', [TeacherController::class, 'unitplannergenerate'])->middleware('hasTokens');
         });

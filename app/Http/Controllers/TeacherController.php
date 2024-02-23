@@ -183,6 +183,12 @@ class TeacherController extends Controller
 
        return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));
     }
+    public function students()
+    {
+        $students = Student::with('grade','section')->get();
+
+        return view('panel.teacher.manage.studentlist',compact('students'));
+    }
     public function classsubject()
     {
         $grade = Grade::all();

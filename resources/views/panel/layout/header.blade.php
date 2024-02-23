@@ -450,6 +450,18 @@
 							</span>
 						</a>
 					</li>
+					<li>
+						<a class="nav-link {{activeRoute('dashboard.teacher.students')}}"
+							href="{{route('dashboard.teacher.students')}}">
+							<span
+								class="nav-link-icon inline-flex items-center justify-center w-[24px] h-[24px] shrink-0 rounded-[6px] bg-[#7A8193] text-white text-[10px] font-normal">
+								{{mb_substr(__('List Student'), 0, 1)}}
+							</span>
+							<span class="flex items-center transition-[opacity,transform] nav-link-title grow">
+								{{__('Student List')}}
+							</span>
+						</a>
+					</li>
 					
 					<li>
 						<a class="nav-link {{activeRoute('dashboard.teacher.classsubject')}}"
