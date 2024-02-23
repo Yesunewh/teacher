@@ -10,7 +10,7 @@ use GuzzleHttp\Client;
 use App\Models\Setting;
 use App\Models\Grade;
 use App\Models\Section;
-use App\Models\Se;
+use App\Models\Subject;
 use App\Models\SettingTwo;
 use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
@@ -144,18 +144,23 @@ class TeacherController extends Controller
     public function managestudent()
     {
         $studentNumber = $this->generateRandomNumber();
+        $grade = Grade::all();
+        $section = Section::all();
         // do {
         //     $studentNumber = $this->generateRandomNumber();
         // } while (Student::where('number', $studentNumber)->exists());
 
 
-       return view('panel.teacher.manage.student',compact('studentNumber'));
+       return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));
     }
     public function classsubject()
     {
+        $grade = Grade::all();
+        $section = Section::all();
+        $subject = Subject::all();
       
 
-       return view('panel.teacher.manage.subject');
+       return view('panel.teacher.manage.subject',compact('subject','grade','section'));
     }
 
     public function generateRandomNumber()

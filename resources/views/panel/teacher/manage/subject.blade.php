@@ -56,20 +56,10 @@
                         <label class="form-label">{{__('Grade*')}}</label>
                         <select type="text" class="form-select" name="grade" id="grade" required>
                             <option>{{__('-- Select Student Grade --')}}</option>
-                            <option value="kindergarzten">{{__('kindergarten')}}</option>
-                            <option value="Grade 1">{{__('Grade 1')}}</option>
-                            <option value="Grade 2">{{__('Grade 2')}}</option>
-                            <option value="Grade 3">{{__('Grade 3')}}</option>
-                            <option value="Grade 4">{{__('Grade 4')}}</option>
-                            <option value="Grade 5">{{__('Grade 5')}}</option>
-                            <option value="Grade 6">{{__('Grade 6')}}</option>
-                            <option value="Grade 7">{{__('Grade 7')}}</option>
-                            <option value="Grade 8">{{__('Grade 8')}}</option>
-                            <option value="Grade 9">{{__('Grade 9')}}</option>
-                            <option value="Grade 10">{{__('Grade 10')}}</option>
-                            <option value="Grade 11">{{__('Grade 11')}}</option>
-                            <option value="Grade 12">{{__('Grade 12')}}</option>
-                            <option value="Adult Education">{{__('Adult Education')}}</option>
+                            @foreach ($grade as $item)
+    
+<option value="{{ $item->id }}">{{ $item->name}}</option>
+@endforeach
 
                         </select>
                     </div>
@@ -79,41 +69,23 @@
                         <select type="text" class="form-select" name="class" id="class" required>
 
                             <option>{{__('-- Select Student class --')}}</option>
-                            <option value="A">{{__('A')}}</option>
-                            <option value="B">{{__('B')}}</option>
-                            <option value="C">{{__('C')}}</option>
-                            <option value="D">{{__('D')}}</option>
-                            <option value="E">{{__('E')}}</option>
-                            <option value="F">{{__('F')}}</option>
-                            <option value="G">{{__('G')}}</option>
-                            <option value="H">{{__('H')}}</option>
-                            <option value="I">{{__('I')}}</option>
-                            <option value="J">{{__('J')}}</option>
-                            <option value="K">{{__('K')}}</option>
-                            <option value="L">{{__('L')}}</option>
-                            <option value="M">{{__('M')}}</option>
-                            <option value="N">{{__('N')}}</option>
-                            <option value="O">{{__('O')}}</option>
-                            <option value="P">{{__('P')}}</option>
-                            <option value="Q">{{__('Q')}}</option>
-                            <option value="R">{{__('R')}}</option>
-                            <option value="S">{{__('S')}}</option>
-                            <option value="T">{{__('T')}}</option>
-                            <option value="U">{{__('U')}}</option>
-                            <option value="V">{{__('V')}}</option>
-                            <option value="W">{{__('W')}}</option>
-                            <option value="X">{{__('X')}}</option>
-                            <option value="Y">{{__('Y')}}</option>
-                            <option value="Z">{{__('Z')}}</option>
+                            @foreach ($section as $item)
+    
+                            <option value="{{ $item->id }}">{{ $item->name}}</option>
+                            @endforeach
+                          
                         </select>
                     </div>
+                    @foreach ($subject as $item)
+                        
                     <div class="mb-3 col-xs-6 col-md-3 ">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="mySwitch" name="darkmode" value="yes"
-                                >
-                            <label class="form-check-label" for="mySwitch">English</label>
+                            <input class="form-check-input" type="checkbox" id="mySwitch" name="subject" value="{{ $item->id }}"
+                            >
+                            <label class="form-check-label" for="mySwitch">{{ $item->name }}</label>
                         </div>
                     </div>
+                    @endforeach
                     <div class="mb-3 col-xs-6 col-md-3 ">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="mySwitch" name="darkmode" value="yes"
