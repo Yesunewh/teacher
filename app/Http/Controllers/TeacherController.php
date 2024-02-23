@@ -11,6 +11,7 @@ use App\Models\Setting;
 use App\Models\Grade;
 use App\Models\Section;
 use App\Models\Subject;
+use App\Models\Student;
 use App\Models\SettingTwo;
 use App\Models\UserOpenai;
 use App\Models\UserOpenaiChat;
@@ -28,6 +29,7 @@ use App\Models\OpenaiGeneratorFilter;
 use Exception;
 use Illuminate\Http\Client\RequestException;
 
+use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
@@ -149,6 +151,34 @@ class TeacherController extends Controller
         // do {
         //     $studentNumber = $this->generateRandomNumber();
         // } while (Student::where('number', $studentNumber)->exists());
+
+
+       return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));
+    }
+    public function studentinfosave(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'grade_id' => 'required|integer',
+            'relation' => 'required|string',
+            'accessid' => 'required|string|unique:students',
+            'section_id' => 'required|integer',
+        ]);
+        $validatedData = $validator->validated();
+
+        if ($validator->fails()) {
+          
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        Student::create($validatedData);
+        return redirect()->back()->withInput();
 
 
        return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));

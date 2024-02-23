@@ -15,6 +15,16 @@
                     {{__('Add Student
                     ')}}
                 </h2>
+
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
             <!-- Page title actions -->
             <div class="col-auto">
@@ -46,72 +56,75 @@
     <div class="container-xl ">
         <div class="row ">
             <div class="col-12">
-                <div class="row">
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Full Name*')}}</label>
-                        <input type="text" class="form-control" id="maximum_length" name="name"
-                            placeholder="i.e abdi, melat" required>
+                <form action="{{ route('dashboard.teacher.managestudent') }}" method="post">
+                    @csrf
+                    <div class="row">
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('Full Name*')}}</label>
+                            <input type="text" class="form-control" id="maximum_length" name="name"
+                                placeholder="i.e abdi, melat" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('student Access ID*')}}</label>
+                            <input type="number" class="form-control" id="maximum_length" name="accessid" readonly
+                                value="{{ $studentNumber }}" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('Parent Phone*')}}</label>
+                            <input type="text" class="form-control" id="maximum_length" name="phone"
+                                placeholder=" +251*****" required>
+                        </div>
+
+
+
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('Grade*')}}</label>
+                            <select type="text" class="form-select" name="grade_id" id="grade" required>
+                                <option>{{__('-- Select Student Grade --')}}</option>
+                                @foreach ($grade as $item)
+
+                                <option value="{{ $item->id }}">{{ $item->name}}</option>
+                                @endforeach
+
+                            </select>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('Relationship*')}}</label>
+                            <select type="text" class="form-select" name="relation" id="grade" required>
+
+                                <option>{{__('-- Select Relationship --')}}</option>
+                                <option value="Father">{{__('Father')}}</option>
+                                <option value="Mother">{{__('Mother')}}</option>
+                                <option value="Sister">{{__('Sister')}}</option>
+                                <option value="Brother">{{__('Brother')}}</option>
+
+                            </select>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-6">
+                            <label class="form-label">{{__('Class/Section*')}}</label>
+                            <select type="text" class="form-select" name="section_id" id="class" required>
+
+                                <option>{{__('-- Select Student class --')}}</option>
+                                @foreach ($section as $item)
+
+                                <option value="{{ $item->id }}">{{ $item->name}}</option>
+                                @endforeach
+
+
+                            </select>
+                        </div>
+
+
+                        <div class="col-xs-12 col-4 mt-4">
+                            <button id="openai_generator_button"
+                                class="btn btn-primary w-100 py-[0.75em] flex items-center group" type="submit">
+                                <span class="hidden group-[.lqd-form-submitting]:inline-flex">{{__('Please
+                                    wait...')}}</span>
+                                <span class="group-[.lqd-form-submitting]:hidden">{{__('Save')}}</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('student Access ID*')}}</label>
-                        <input type="number" class="form-control" id="maximum_length" name="accessid" readonly disabled
-                            value="{{ $studentNumber }}" required>
-                    </div>
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Parent Phone*')}}</label>
-                        <input type="text" class="form-control" id="maximum_length" name="phone"
-                            placeholder=" +251*****" required>
-                    </div>
-
-
-
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Grade*')}}</label>
-                        <select type="text" class="form-select" name="grade" id="grade" required>
-                            <option>{{__('-- Select Student Grade --')}}</option>
-@foreach ($grade as $item)
-    
-<option value="{{ $item->id }}">{{ $item->name}}</option>
-@endforeach
-                           
-                        </select>
-                    </div>
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Relationship*')}}</label>
-                        <select type="text" class="form-select" name="relation" id="grade" required>
-
-                            <option>{{__('-- Select Relationship --')}}</option>
-                            <option value="Father">{{__('Father')}}</option>
-                            <option value="Mother">{{__('Mother')}}</option>
-                            <option value="Sister">{{__('Sister')}}</option>
-                            <option value="Brother">{{__('Brother')}}</option>
-
-                        </select>
-                    </div>
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Class/Section*')}}</label>
-                        <select type="text" class="form-select" name="class" id="class" required>
-
-                            <option>{{__('-- Select Student class --')}}</option>
-@foreach ($section as $item)
-    
-<option value="{{ $item->id }}">{{ $item->name}}</option>
-@endforeach
-
-                           
-                        </select>
-                    </div>
-
-
-                    <div class="col-xs-12 col-4 mt-4">
-                        <button id="openai_generator_button"
-                            class="btn btn-primary w-100 py-[0.75em] flex items-center group" type="submit">
-                            <span class="hidden group-[.lqd-form-submitting]:inline-flex">{{__('Please
-                                wait...')}}</span>
-                            <span class="group-[.lqd-form-submitting]:hidden">{{__('Save')}}</span>
-                        </button>
-                    </div>
-                </div>
+                </form>
 
             </div>
 
