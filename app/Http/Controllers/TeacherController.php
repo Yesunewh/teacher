@@ -2,66 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Teacher;
-
-use \stdClass;
-use App\Models\OpenAIGenerator;
-use GuzzleHttp\Client;
-use App\Models\Setting;
 use App\Models\Grade;
+use App\Models\OpenAIGenerator;
+use App\Models\OpenaiGeneratorFilter;
 use App\Models\Section;
-use App\Models\Subject;
 use App\Models\Student;
-use App\Models\SettingTwo;
+use App\Models\Subject;
+use App\Models\SubjectforGrade;
+use App\Models\Teacher;
 use App\Models\UserOpenai;
-use App\Models\UserOpenaiChat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\File;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use OpenAI;
-use OpenAI\Laravel\Facades\OpenAI as FacadesOpenAI;
-use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-
-use App\Models\OpenaiGeneratorFilter;
-use Exception;
-use Illuminate\Http\Client\RequestException;
-
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class TeacherController extends Controller
 {
-    
+
     public function index()
     {
         //
     }
 
-  
     public function create()
     {
         //
     }
     public function others()
     {
-       return view('panel.teacher.others');
+        return view('panel.teacher.others');
     }
     public function Curriculum()
     {
         $list = OpenAIGenerator::all();
         $filters = OpenaiGeneratorFilter::get();
 
-       return view('panel.teacher.Curriculum',compact('list', 'filters'));
+        return view('panel.teacher.Curriculum', compact('list', 'filters'));
     }
     public function syllabus()
     {
-       return view('panel.teacher.curriculum.syllabus');
+        return view('panel.teacher.curriculum.syllabus');
     }
     public function unitplanner()
     {
-       return view('panel.teacher.curriculum.unitplanner');
+        return view('panel.teacher.curriculum.unitplanner');
     }
     public function unitplannergenerate(Request $request)
     {
@@ -74,7 +60,6 @@ class TeacherController extends Controller
         $tone_of_voice = $request->tone_of_voice;
         $post_type = $request->post_type;
 
-
         $language = $request->language;
         try {
             $language = explode('-', $language);
@@ -83,29 +68,26 @@ class TeacherController extends Controller
                 $language = LaravelLocalization::getSupportedLocales()[$language[0]]['name'];
                 $language .= " $ek";
             } else {
-                $language  = $request->language;
+                $language = $request->language;
             }
         } catch (\Throwable $th) {
-            $language  = $request->language;
+            $language = $request->language;
             Log::error($language);
         }
-
 
         $article_title = $request->article_title;
         $focus_keywords = $request->article_title;
         $prompt = "Generate article about $article_title. Focus on $focus_keywords. Maximum $maximum_length words. Creativity is $creativity between 0 and 1. Language is $language. Generate $number_of_results different articles. Tone of voice must be $tone_of_voice";
-  
+
         $post = OpenAIGenerator::where('slug', $post_type)->first();
 
         return $this->textOutput($prompt, $post, $creativity, $maximum_length, $number_of_results, $user);
     }
 
-
-
     public function textOutput($prompt, $post, $creativity, $maximum_length, $number_of_results, $user)
     {
         $user = Auth::user();
-        if ($user->remaining_words <= 0  and $user->remaining_words != -1) {
+        if ($user->remaining_words <= 0 and $user->remaining_words != -1) {
             $data = array(
                 'errors' => ['You have no credits left. Please consider upgrading your plan.'],
             );
@@ -133,31 +115,29 @@ class TeacherController extends Controller
 
     public function activity()
     {
-       return view('panel.teacher.curriculum.activity');
+        return view('panel.teacher.curriculum.activity');
     }
     public function lab()
     {
-       return view('panel.teacher.curriculum.lab');
+        return view('panel.teacher.curriculum.lab');
     }
     public function assessment()
     {
-       return view('panel.teacher.assessment');
+        return view('panel.teacher.assessment');
     }
     public function managestudent()
     {
-        $studentNumber = $this->generateRandomNumber();
+        // $studentNumber = $this->generateRandomNumber();
         $grade = Grade::all();
         $section = Section::all();
-        // do {
-        //     $studentNumber = $this->generateRandomNumber();
-        // } while (Student::where('number', $studentNumber)->exists());
+        do {
+            $studentNumber = $this->generateRandomNumber();
+        } while (Student::where('accessid', $studentNumber)->exists());
 
-
-       return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));
+        return view('panel.teacher.manage.student', compact('studentNumber', 'grade', 'section'));
     }
     public function studentinfosave(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
@@ -170,7 +150,7 @@ class TeacherController extends Controller
         $validatedData = $validator->validated();
 
         if ($validator->fails()) {
-          
+
             return redirect()
                 ->back()
                 ->withErrors($validator)
@@ -180,23 +160,41 @@ class TeacherController extends Controller
         Student::create($validatedData);
         return redirect()->back()->withInput();
 
-
-       return view('panel.teacher.manage.student',compact('studentNumber','grade','section'));
+        return view('panel.teacher.manage.student', compact('studentNumber', 'grade', 'section'));
     }
     public function students()
     {
-        $students = Student::with('grade','section')->get();
+        $students = Student::with('grade', 'section')->get();
 
-        return view('panel.teacher.manage.studentlist',compact('students'));
+        return view('panel.teacher.manage.studentlist', compact('students'));
     }
     public function classsubject()
     {
         $grade = Grade::all();
         $section = Section::all();
         $subject = Subject::all();
-      
 
-       return view('panel.teacher.manage.subject',compact('subject','grade','section'));
+        return view('panel.teacher.manage.subject', compact('subject', 'grade', 'section'));
+    }
+
+    public function classsubjectsave(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subject_id' => 'required|exists:subjects,id',
+            'grade_id' => 'required|exists:grades,id',
+            'field_of_study' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        SubjectforGrade::create($validator->validated());
+
+        return redirect()->back()->withInput();
     }
 
     public function generateRandomNumber()
@@ -210,32 +208,25 @@ class TeacherController extends Controller
         //
     }
 
-
-
-   
     public function store(Request $request)
     {
         //
     }
-
 
     public function show(Teacher $teacher)
     {
         //
     }
 
- 
     public function edit(Teacher $teacher)
     {
         //
     }
 
-   
     public function update(Request $request, Teacher $teacher)
     {
         //
     }
-
 
     public function destroy(Teacher $teacher)
     {
