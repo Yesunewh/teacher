@@ -25,8 +25,10 @@ class StudentResult extends Model
     ];
 
 
-    public function subjects()
-{
-    return $this->belongsToMany(Subject::class);
-}
+
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

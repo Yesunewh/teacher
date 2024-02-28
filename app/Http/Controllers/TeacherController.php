@@ -307,7 +307,8 @@ class TeacherController extends Controller
     }
     public function viewstudentresult($id)
     {
-        $result = StudentResult::where('student_id', $id)->get();
+        
+        $result = StudentResult::where('student_id', $id)->with('student')->get();
         $mergedResult = [];
 
         foreach ($result as $key => $student) {
@@ -324,8 +325,8 @@ class TeacherController extends Controller
             $student->subject_name = json_encode($subjectNames);
             $mergedResult[] = $student;
         }
-        dd($mergedResult);
-        return str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
+       
+        return view('panel.teacher.manage.viewgrade',compact('mergedResult'));
     }
 
     public function generateRandomNumber()

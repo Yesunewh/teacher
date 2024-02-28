@@ -34,6 +34,7 @@
                             <th><button class="table-sort" data-sort="sort-remaining-images">{{__('Parent Phone')}}</button></th>
                             <th><button class="table-sort" data-sort="sort-country">{{__('Relationship')}}</button></th>
                           
+                            <th><button class="table-sort" data-sort="sort-date">{{__('Action')}}</button></th>
                             <th><button class="table-sort" data-sort="sort-date">{{__('Created At')}}</button></th>
                             {{-- <th class="!text-end">{{__('Actions')}}</th> --}}
                         </tr>
@@ -50,6 +51,7 @@
                                     <td class="sort-remaining-words">{{$entry->section->name}}</td>
                                     <td class="sort-remaining-images">{{$entry->phone}}</td>
                                     <td class="sort-country">{{$entry->relation}}</td>
+                                    <td class="sort-country"><a href="/dashboard/teacher/manage/student/studentresult/{{ $entry->id }}">View Result</a></td>
                                    
                                     <td class="sort-date" data-date="{{strtotime($entry->created_at)}}">
                                         <p class="m-0">{{date("j.n.Y", strtotime($entry->created_at))}}</p>
