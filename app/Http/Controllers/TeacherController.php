@@ -7,9 +7,9 @@ use App\Models\OpenAIGenerator;
 use App\Models\OpenaiGeneratorFilter;
 use App\Models\Section;
 use App\Models\Student;
+use App\Models\StudentResult;
 use App\Models\Subject;
 use App\Models\SubjectforGrade;
-use App\Models\StudentResult;
 use App\Models\Teacher;
 use App\Models\UserOpenai;
 use Illuminate\Http\Request;
@@ -173,20 +173,18 @@ class TeacherController extends Controller
         return view('panel.teacher.manage.studentlist', compact('students'));
     }
 
-    public function studentsgrade($grade,$section)
+    public function studentsgrade($grade, $section)
     {
-     
 
-        $students = Student::with('grade', 'section')->where(['grade_id'=> $grade, 'section_id' =>$section])->get();
+        $students = Student::with('grade', 'section')->where(['grade_id' => $grade, 'section_id' => $section])->get();
 
         return view('panel.teacher.manage.gradestudentlist', compact('students'));
     }
 
     public function studentsaddgrade($id)
     {
-     
 
-        $student = Student::with('grade', 'section')->where('accessid',$id)->first();
+        $student = Student::with('grade', 'section')->where('accessid', $id)->first();
 
         return view('panel.teacher.manage.studentgrade', compact('student'));
     }
@@ -203,9 +201,6 @@ class TeacherController extends Controller
         return view('panel.teacher.manage.selectclass', compact('categorizedStudents'));
     }
 
-
-
-
     public function classsubject()
     {
         $grade = Grade::all();
@@ -216,103 +211,123 @@ class TeacherController extends Controller
     }
     public function subjects()
     {
-      $subject =  SubjectforGrade::with('subject','grade')->get();
+        $subject = SubjectforGrade::with('subject', 'grade')->get();
 
         return view('panel.teacher.manage.subjectlist', compact('subject'));
     }
 
     public function classsubjectsave(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'subject_id' => 'required|array',
-        'subject_id.*' => 'required|exists:subjects,id',
-        'grade_id' => 'required|exists:grades,id',
-        'field_of_study' => 'required|string',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'subject_id' => 'required|array',
+            'subject_id.*' => 'required|exists:subjects,id',
+            'grade_id' => 'required|exists:grades,id',
+            'field_of_study' => 'required|string',
+        ]);
 
-    if ($validator->fails()) {
-        return redirect()
-            ->back()
-            ->withErrors($validator)
-            ->withInput();
+        if ($validator->fails()) {
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $grade = Grade::findOrFail($request->input('grade_id'));
+        $fieldOfStudy = $request->input('field_of_study');
+
+        $subjectIds = $request->input('subject_id');
+        $data = [];
+        foreach ($subjectIds as $subjectId) {
+            $data[$subjectId] = ['field_of_study' => $fieldOfStudy];
+        }
+
+        $grade->subjects()->sync($data);
+
+        Session::flash('success', 'Class subjects saved successfully.');
+
+        return redirect()->back();
     }
-
-    $grade = Grade::findOrFail($request->input('grade_id'));
-    $fieldOfStudy = $request->input('field_of_study');
-
-    $subjectIds = $request->input('subject_id');
-    $data = [];
-    foreach ($subjectIds as $subjectId) {
-        $data[$subjectId] = ['field_of_study' => $fieldOfStudy];
-    }
-
-    $grade->subjects()->sync($data);
-
-    Session::flash('success', 'Class subjects saved successfully.');
-
-    return redirect()->back();
-}
-
-    
 
 // ...
 
-public function studentresult(Request $request)
-{
-    // Validate the request data
-$validator = Validator::make($request->all(), [
-        'advisor_name' => 'required',
-        'advisor_phone' => 'required',
-        'conduct' => 'required',
-        'class_activity' => 'required',
-        'attendance' => 'required|integer',
-        'subject_id' => 'required|array',
-        'subject_id.*' => 'required|exists:subjects,id',
-        'subject_result' => 'required|array',
-        'subject_result.*' => 'required|string',
-        'percent' => 'required|array',
-        'percent.*' => 'required|string',
-        'student_id' => 'required|exists:students,id',
-        'total_result' => 'required',
-        'total_percent' => 'required',
-    ]);
-    $validatedData = $validator->validated();
+    public function studentresult(Request $request)
+    {
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'advisor_name' => 'required',
+            'advisor_phone' => 'required',
+            'conduct' => 'required',
+            'class_activity' => 'required',
+            'attendance' => 'required|integer',
+            'subject_id' => 'required|array',
+            'subject_id.*' => 'required|exists:subjects,id',
+            'subject_result' => 'required|array',
+            'subject_result.*' => 'required|string',
+            'percent' => 'required|array',
+            'percent.*' => 'required|string',
+            'student_id' => 'required|exists:students,id',
+            'total_result' => 'required',
+            'total_percent' => 'required',
+        ]);
+        $validatedData = $validator->validated();
 
         if ($validator->fails()) {
-        return redirect()
-            ->back()
-            ->withErrors($validator)
-            ->withInput();
+            return redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Convert the arrays to JSON strings
+        $subjectResultJson = json_encode($validatedData['subject_result']);
+        $percentJson = json_encode($validatedData['percent']);
+        $subject_idJson = json_encode($validatedData['subject_id']);
+
+        // Create a new StudentResult instance
+        $studentResult = new StudentResult();
+
+        // Assign the validated data to the model's properties
+        $studentResult->advisor_name = $validatedData['advisor_name'];
+        $studentResult->advisor_phone = $validatedData['advisor_phone'];
+        $studentResult->conduct = $validatedData['conduct'];
+        $studentResult->class_activity = $validatedData['class_activity'];
+        $studentResult->attendance = $validatedData['attendance'];
+        $studentResult->subject_result = $subjectResultJson;
+        $studentResult->percent = $percentJson;
+        $studentResult->subject_id = $subject_idJson;
+        $studentResult->student_id = $validatedData['student_id'];
+        $studentResult->total_result = $validatedData['total_result'];
+        $studentResult->total_percent = $validatedData['total_percent'];
+
+        // Save the student result in the database
+        $studentResult->save();
+
+        // Optionally, you can return a response or redirect to a specific page
+        return redirect()->back()->with('success', 'Student result saved successfully!');
+    }
+    public function viewstudentresult($id)
+    {
+        $result = StudentResult::where('student_id', $id)->get();
+        $mergedResult = [];
+
+        foreach ($result as $key => $student) {
+            $subjectIds = json_decode($student->subject_id);
+            $subjectNames = [];
+
+            foreach ($subjectIds as $subjectId) {
+                $subject = Subject::find($subjectId);
+                if ($subject) {
+                    $subjectNames[] = $subject->name;
+                }
+            }
+
+            $student->subject_name = json_encode($subjectNames);
+            $mergedResult[] = $student;
+        }
+        dd($mergedResult);
+        return str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
     }
 
-
-    // Convert the arrays to JSON strings
-    $subjectResultJson = json_encode($validatedData['subject_result']);
-    $percentJson = json_encode($validatedData['percent']);
-    $subject_idJson = json_encode($validatedData['subject_id']);
-
-    // Create a new StudentResult instance
-    $studentResult = new StudentResult();
-
-    // Assign the validated data to the model's properties
-    $studentResult->advisor_name = $validatedData['advisor_name'];
-    $studentResult->advisor_phone = $validatedData['advisor_phone'];
-    $studentResult->conduct = $validatedData['conduct'];
-    $studentResult->class_activity = $validatedData['class_activity'];
-    $studentResult->attendance = $validatedData['attendance'];
-    $studentResult->subject_result = $subjectResultJson;
-    $studentResult->percent = $percentJson;
-    $studentResult->subject_id = $subject_idJson;
-    $studentResult->student_id = $validatedData['student_id'];
-    $studentResult->total_result = $validatedData['total_result'];
-    $studentResult->total_percent = $validatedData['total_percent'];
-
-    // Save the student result in the database
-    $studentResult->save();
-
-    // Optionally, you can return a response or redirect to a specific page
-    return redirect()->back()->with('success', 'Student result saved successfully!');
-}
     public function generateRandomNumber()
     {
         return str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
