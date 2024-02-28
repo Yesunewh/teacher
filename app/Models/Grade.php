@@ -9,5 +9,10 @@ class Grade extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'name',];
+    protected $fillable = [ 'name'];
+
+    public function subjects()
+{
+    return $this->belongsToMany(Subject::class,'subjectfor_grades');
+}
 }

@@ -488,8 +488,8 @@
 						</a>
 					</li>
 					<li>
-						<a class="nav-link {{activeRoute('dashboard.user.openai.list.favorites')}}"
-							href="{{route('dashboard.user.openai.list.favorites')}}">
+						<a class="nav-link {{activeRoute('dashboard.teacher.studentsclass')}}"
+							href="{{route('dashboard.teacher.studentsclass')}}">
 							<span
 								class="nav-link-icon inline-flex items-center justify-center w-[24px] h-[24px] shrink-0 rounded-[6px] bg-[#7A8193] text-white text-[10px] font-normal">
 								{{mb_substr(__('Grade'), 0, 1)}}

@@ -11,7 +11,10 @@ class Subject extends Model
 
     protected $fillable = [
         'name',
-      
-        
     ];
+
+        public function grades()
+    {
+        return $this->belongsToMany(Grade::class);
+    }
 }

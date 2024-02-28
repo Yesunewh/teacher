@@ -57,8 +57,13 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['lo
             Route::post('/manage/student', [TeacherController::class, 'studentinfosave'])->name('managestudent')->middleware('hasTokens');
             Route::get('/manage/subject', [TeacherController::class, 'classsubject'])->name('classsubject')->middleware('hasTokens');
             Route::post('/manage/subject', [TeacherController::class, 'classsubjectsave'])->name('classsubject')->middleware('hasTokens');
-            Route::get('/manage/subject/list', [TeacherController::class, 'subjects'])->name('subjects')->middleware('hasTokens');
+            Route::get('/manage/subject/subjects', [TeacherController::class, 'subjects'])->name('subjects')->middleware('hasTokens');
             Route::get('/manage/student/list', [TeacherController::class, 'students'])->name('students')->middleware('hasTokens');
+            Route::get('/manage/student/class', [TeacherController::class, 'studentsclass'])->name('studentsclass')->middleware('hasTokens');
+            Route::get('/manage/student/class/{grade}/{section}', [TeacherController::class, 'studentsgrade'])->name('studentsgrade')->middleware('hasTokens');
+          
+            Route::get('/manage/student/addgrade/{id}', [TeacherController::class, 'studentsaddgrade'])->name('studentsaddgrade')->middleware('hasTokens');
+            Route::post('/manage/student/addgrade/', [TeacherController::class, 'studentresult'])->name('studentresult')->middleware('hasTokens');
             
             Route::post('/generate/unitplanner', [TeacherController::class, 'unitplannergenerate'])->middleware('hasTokens');
         });

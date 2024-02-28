@@ -9,10 +9,10 @@
             <div class="col col-xs-12">
                 <!-- Page pre-title -->
                 <div class="page-pretitle">
-                    {{__('Add subject for specific class.')}}
+                    {{__('Add student information.')}}
                 </div>
                 <h2 class="page-title mb-2">
-                    {{__('Add Subject
+                    {{__('Add Student
                     ')}}
                 </h2>
 
@@ -25,12 +25,6 @@
                     </ul>
                 </div>
                 @endif
-
-                @if (Session::has('success'))
-    <div class="alert alert-success">
-        {{ Session::get('success') }}
-    </div>
-@endif
             </div>
             <!-- Page title actions -->
             <div class="col-auto">
@@ -62,57 +56,80 @@
     <div class="container-xl ">
         <div class="row ">
             <div class="col-12">
-                <form action="{{ route('dashboard.teacher.classsubject') }}" method="post">
-                    
+                <form action="{{ route('dashboard.teacher.studentresult') }}" method="post">
                     @csrf
-                <div class="row">
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Field of study*')}}</label>
-                        <select type="text" class="form-select" name="field_of_study" id="grade" required>
-                            <option>{{__('-- Select Field of study --')}}</option>
+                    <div class="row">
+                        <div class="mb-3 col-xs-6 col-md-7">
+                            <label class="form-label">{{__('Advisor Name*')}}</label>
+                            <input type="text" class="form-control" id="maximum_length" name="advisor_name"
+                                placeholder="i.e abdi, melat" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-5">
+                            <label class="form-label">{{__('Advisor phone*')}}</label>
+                            <input type="number" class="form-control" id="maximum_length" name="advisor_phone"
+                                placeholder="09*******" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-4">
+                            <label class="form-label">{{__('Conduct*')}}</label>
+                            <input type="text" class="form-control" id="maximum_length" name="conduct"
+                                placeholder="i.e very good, excellent" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-4">
+                            <label class="form-label">{{__('Class Activity*')}}</label>
+                            <input type="text" class="form-control" id="maximum_length" name="class_activity"
+                                placeholder="i.e  good, not bad" required>
+                        </div>
+                        <div class="mb-3 col-xs-6 col-md-4">
+                            <label class="form-label">{{__('Attendace*')}}</label>
+                            <input type="number" class="form-control" id="maximum_length" name="attendance"
+                                placeholder="i.e  days absent" required>
+                        </div>
 
-                            <option value="kindergarten">kindergarten</option>
-                            <option value="Middle school">Middle school</option>
-                            <option value="High school">High school</option>
-                            <option value="Natural sciences">Natural sciences</option>
-                            <option value="Social sciences">Social sciences</option>
-                            <option value="Adult Education">Adult Education</option>
+                        <hr class="m-4" style="font-weight: 900">
+                        <br>
+                        @foreach ($student->grade->subjects->toArray() as $item)
+                        <div class="mb-3 col-xs-6 col-md-4">
+                            <div class="row">
+                                <div class="mb-3 col-xs-6 col-md-6">
+                                    <label class="form-label">{{ $item['name']}}*</label>
+                                    <input type="number" class="form-control subject-result" name="subject_result[]"  required>
+                                </div>
+                                <div class="mb-3 col-xs-6 col-md-6">
+                                    <label class="form-label">{{__('Percent*')}}</label>
+                                    <input type="number" class="form-control percent" name="percent[]"  required>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="subject_id[]" value="{{ $item['id'] }}">
 
-
-                        </select>
-                    </div>
-                    <div class="mb-3 col-xs-6 col-md-6">
-                        <label class="form-label">{{__('Grade*')}}</label>
-                        <select type="text" class="form-select" name="grade_id" id="grade" required>
-                            <option>{{__('-- Select Student Grade --')}}</option>
-                            @foreach ($grade as $item)
-
-                            <option value="{{ $item->id }}">{{ $item->name}}</option>
-                            @endforeach
-
-                        </select>
-                    </div>
-
-
-                    @foreach ($subjects as $subject)
+                    @endforeach
+                    
+                    <hr>
+                    
                     <div class="mb-3 col-xs-6 col-md-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="subject_{{ $subject->id }}" name="subject_id[]"
-                                value="{{ $subject->id }}">
-                            <label class="form-check-label" for="subject_{{ $subject->id }}">{{ $subject->name }}</label>
+                        <label class="form-label">{{__('Total Percent*')}}</label>
+                        <input type="text" class="form-control total-percent" id="total_percent" name="total_percent" placeholder="" required readonly style="background-color: rgb(239, 233, 233)">
+                    </div>
+                    
+                    <div class="mb-3 col-xs-6 col-md-3">
+                        <label class="form-label">{{__('Total Result*')}}</label>
+                        <input type="text" class="form-control total-result" id="total_result"  name="total_result" placeholder="" required readonly style="background-color: rgb(239, 233, 233)">
+                    </div>
+                    
+                    <hr>
+                    <input type="hidden" name="student_id" value="{{ $student->id }}">
+                
+                      
+                        <div class="col-xs-12 col-4 mt-4">
+                            <button id="openai_generator_button"
+                                class="btn btn-primary w-100 py-[0.75em] flex items-center group" type="submit">
+                                <span class="hidden group-[.lqd-form-submitting]:inline-flex">{{__('Please
+                                    wait...')}}</span>
+                                <span class="group-[.lqd-form-submitting]:hidden">{{__('Save')}}</span>
+                            </button>
                         </div>
                     </div>
-                @endforeach
-
-                    <div class="col-xs-12 col-4 mt-4">
-                        <button id="openai_generator_button" class="btn btn-primary w-100 py-[0.75em] flex items-center group"
-                            type="submit">
-                            <span class="hidden group-[.lqd-form-submitting]:inline-flex">{{__('Please
-                                wait...')}}</span>
-                            <span class="group-[.lqd-form-submitting]:hidden">{{__('Save')}}</span>
-                        </button>
-                    </div>
-                </div>
+                </form>
 
             </div>
 
@@ -133,6 +150,32 @@
 <link rel="stylesheet" href="/assets/libs/prism/prism.css">
 <script src="/assets/libs/prism/prism.js"></script>
 @endif --}}
+<script>
+    // Calculate total result and total percent
+    $(document).ready(function () {
+        $('.subject-result, .percent').on('input', function () {
+            var totalResult = 0;
+            var totalPercent = 0;
+
+            $('.subject-result').each(function () {
+                var subjectResult = parseFloat($(this).val());
+                if (!isNaN(subjectResult)) {
+                    totalResult += subjectResult;
+                }
+            });
+
+            $('.percent').each(function () {
+                var percent = parseFloat($(this).val());
+                if (!isNaN(percent)) {
+                    totalPercent += percent;
+                }
+            });
+
+            $('#total_result').val(totalResult);
+            $('#total_percent').val(totalPercent);
+        });
+    });
+</script>
 <script>
     const stream_type = '{!!$settings_two->openai_default_stream_server!!}';
         const openai_model = '{{$setting->openai_default_model}}';

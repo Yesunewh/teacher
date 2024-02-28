@@ -9,11 +9,13 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\SubjectforGrade;
+use App\Models\StudentResult;
 use App\Models\Teacher;
 use App\Models\UserOpenai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -136,6 +138,7 @@ class TeacherController extends Controller
 
         return view('panel.teacher.manage.student', compact('studentNumber', 'grade', 'section'));
     }
+
     public function studentinfosave(Request $request)
     {
 
@@ -162,19 +165,54 @@ class TeacherController extends Controller
 
         return view('panel.teacher.manage.student', compact('studentNumber', 'grade', 'section'));
     }
+
     public function students()
     {
         $students = Student::with('grade', 'section')->get();
 
         return view('panel.teacher.manage.studentlist', compact('students'));
     }
+
+    public function studentsgrade($grade,$section)
+    {
+     
+
+        $students = Student::with('grade', 'section')->where(['grade_id'=> $grade, 'section_id' =>$section])->get();
+
+        return view('panel.teacher.manage.gradestudentlist', compact('students'));
+    }
+
+    public function studentsaddgrade($id)
+    {
+     
+
+        $student = Student::with('grade', 'section')->where('accessid',$id)->first();
+
+        return view('panel.teacher.manage.studentgrade', compact('student'));
+    }
+
+    public function studentsclass()
+    {
+        $students = Student::with('grade', 'section')->get();
+
+        $categorizedStudents = $students->groupBy(function ($student) {
+            return $student->grade->name . '_' . $student->section->name;
+        });
+
+// return $categorizedStudents;
+        return view('panel.teacher.manage.selectclass', compact('categorizedStudents'));
+    }
+
+
+
+
     public function classsubject()
     {
         $grade = Grade::all();
         $section = Section::all();
-        $subject = Subject::all();
+        $subjects = Subject::all();
 
-        return view('panel.teacher.manage.subject', compact('subject', 'grade', 'section'));
+        return view('panel.teacher.manage.subject', compact('subjects', 'grade', 'section'));
     }
     public function subjects()
     {
@@ -184,25 +222,97 @@ class TeacherController extends Controller
     }
 
     public function classsubjectsave(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'subject_id' => 'required|exists:subjects,id',
-            'grade_id' => 'required|exists:grades,id',
-            'field_of_study' => 'required|string',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'subject_id' => 'required|array',
+        'subject_id.*' => 'required|exists:subjects,id',
+        'grade_id' => 'required|exists:grades,id',
+        'field_of_study' => 'required|string',
+    ]);
 
-        if ($validator->fails()) {
-            return redirect()
-                ->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        SubjectforGrade::create($validator->validated());
-
-        return redirect()->back()->withInput();
+    if ($validator->fails()) {
+        return redirect()
+            ->back()
+            ->withErrors($validator)
+            ->withInput();
     }
 
+    $grade = Grade::findOrFail($request->input('grade_id'));
+    $fieldOfStudy = $request->input('field_of_study');
+
+    $subjectIds = $request->input('subject_id');
+    $data = [];
+    foreach ($subjectIds as $subjectId) {
+        $data[$subjectId] = ['field_of_study' => $fieldOfStudy];
+    }
+
+    $grade->subjects()->sync($data);
+
+    Session::flash('success', 'Class subjects saved successfully.');
+
+    return redirect()->back();
+}
+
+    
+
+// ...
+
+public function studentresult(Request $request)
+{
+    // Validate the request data
+$validator = Validator::make($request->all(), [
+        'advisor_name' => 'required',
+        'advisor_phone' => 'required',
+        'conduct' => 'required',
+        'class_activity' => 'required',
+        'attendance' => 'required|integer',
+        'subject_id' => 'required|array',
+        'subject_id.*' => 'required|exists:subjects,id',
+        'subject_result' => 'required|array',
+        'subject_result.*' => 'required|string',
+        'percent' => 'required|array',
+        'percent.*' => 'required|string',
+        'student_id' => 'required|exists:students,id',
+        'total_result' => 'required',
+        'total_percent' => 'required',
+    ]);
+    $validatedData = $validator->validated();
+
+        if ($validator->fails()) {
+        return redirect()
+            ->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+
+    // Convert the arrays to JSON strings
+    $subjectResultJson = json_encode($validatedData['subject_result']);
+    $percentJson = json_encode($validatedData['percent']);
+    $subject_idJson = json_encode($validatedData['subject_id']);
+
+    // Create a new StudentResult instance
+    $studentResult = new StudentResult();
+
+    // Assign the validated data to the model's properties
+    $studentResult->advisor_name = $validatedData['advisor_name'];
+    $studentResult->advisor_phone = $validatedData['advisor_phone'];
+    $studentResult->conduct = $validatedData['conduct'];
+    $studentResult->class_activity = $validatedData['class_activity'];
+    $studentResult->attendance = $validatedData['attendance'];
+    $studentResult->subject_result = $subjectResultJson;
+    $studentResult->percent = $percentJson;
+    $studentResult->subject_id = $subject_idJson;
+    $studentResult->student_id = $validatedData['student_id'];
+    $studentResult->total_result = $validatedData['total_result'];
+    $studentResult->total_percent = $validatedData['total_percent'];
+
+    // Save the student result in the database
+    $studentResult->save();
+
+    // Optionally, you can return a response or redirect to a specific page
+    return redirect()->back()->with('success', 'Student result saved successfully!');
+}
     public function generateRandomNumber()
     {
         return str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
