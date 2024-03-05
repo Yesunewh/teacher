@@ -1,5 +1,5 @@
 @extends('panel.layout.app')
-@section('title', 'Assessment Builder')
+@section('title', 'Add Grade')
 
 @section('content')
 
@@ -59,42 +59,71 @@
                 <form action="{{ route('dashboard.teacher.studentresult') }}" method="post">
                     @csrf
                     <div class="row">
-                        <div class="mb-3 col-xs-6 col-md-7">
+                        <div class="mb-3 col-xs-5 col-md-3">
                             <label class="form-label">{{__('Advisor Name*')}}</label>
                             <input type="text" class="form-control" id="maximum_length" name="advisor_name"
                                 placeholder="i.e abdi, melat" required>
                         </div>
-                        <div class="mb-3 col-xs-6 col-md-5">
+                        <div class="mb-3 col-xs-6 col-md-3">
                             <label class="form-label">{{__('Advisor phone*')}}</label>
                             <input type="number" class="form-control" id="maximum_length" name="advisor_phone"
                                 placeholder="09*******" required>
                         </div>
-                        <div class="mb-3 col-xs-6 col-md-4">
+                        <div class="mb-3 col-xs-6 col-md-3">
                             <label class="form-label">{{__('Conduct*')}}</label>
                             <input type="text" class="form-control" id="maximum_length" name="conduct"
                                 placeholder="i.e very good, excellent" required>
                         </div>
-                        <div class="mb-3 col-xs-6 col-md-4">
+                        <div class="mb-3 col-xs-6 col-md-3">
                             <label class="form-label">{{__('Class Activity*')}}</label>
                             <input type="text" class="form-control" id="maximum_length" name="class_activity"
                                 placeholder="i.e  good, not bad" required>
                         </div>
-                        <div class="mb-3 col-xs-6 col-md-4">
+                        <div class="mb-3 col-xs-6 col-md-3">
                             <label class="form-label">{{__('Attendace*')}}</label>
                             <input type="number" class="form-control" id="maximum_length" name="attendance"
                                 placeholder="i.e  days absent" required>
                         </div>
+                        <div class="mb-3 col-xs-6 col-md-3">
+                            <label class="form-label">{{__('choose semester*')}}</label>
+                            <select type="text" class="form-select" name="semester" id="grade" required>
+                                <option>{{__('-- choose semester --')}}</option>
+                             
+                                <option value="1st  semester"> 1st  semester</option>
+                                <option value="2nd  semester"> 2nd  semester</option>
+                                <option value="3rd  semester"> 3rd  semester</option>
+                                <option value="4th  semester"> 4th  semester</option>
 
+                            </select>
+                          
+                        </div>
+                     
+                        
                         <hr class="m-4" style="font-weight: 900">
                         <br>
                         @foreach ($student->grade->subjects->toArray() as $item)
-                        <div class="mb-3 col-xs-6 col-md-4">
+                        <div class="mb-3 col-xs-6 col-md-6">
                             <div class="row">
-                                <div class="mb-3 col-xs-6 col-md-6">
+                                <div class="mb-3 col-xs-6 col-md-4">
                                     <label class="form-label">{{ $item['name']}}*</label>
                                     <input type="number" class="form-control subject-result" name="subject_result[]"  required>
                                 </div>
-                                <div class="mb-3 col-xs-6 col-md-6">
+                                <div class="mb-3 col-xs-6 col-md-4">
+                                    <label class="form-label">{{__('choose assessment type*')}}</label>
+                                    <select type="text" class="form-select" name="assessment" id="assessment" required>
+                                        <option>{{__('choose assessment')}}</option>
+                                     
+                                        <option value="Test"> Test</option>
+                                        <option value="Quiz"> Quiz</option>
+                                        <option value="assignment"> assignment</option>
+                                        <option value="Mid-exam"> Mid-exam</option>
+                                        <option value="Final-exam"> Final-exam</option>
+                                        <option value="Other-Activity">Other-Activity </option>
+        
+                                    </select>
+                                  
+                                </div>
+                                <div class="mb-3 col-xs-6 col-md-4">
                                     <label class="form-label">{{__('Percent*')}}</label>
                                     <input type="number" class="form-control percent" name="percent[]"  required>
                                 </div>
