@@ -119,7 +119,6 @@
                                         <option value="Mid-exam"> Mid-exam</option>
                                         <option value="Final-exam"> Final-exam</option>
                                         <option value="Other-Activity">Other-Activity </option>
-        
                                     </select>
                                   
                                 </div>
